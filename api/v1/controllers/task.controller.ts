@@ -2,12 +2,14 @@ import { Response, Request } from "express";
 
 import Task from "../models/task.model";
 import paginationHelper from "../../../helpers/pagination";
+import searchHelper from "../../../helpers/search";
 
 export const index = async (req: Request, res: Response) => {
   // Filter with status
   interface Find {
     deleted: boolean;
     status?: string;
+    title?: RegExp;
   }
 
   const find: Find = {
@@ -39,6 +41,15 @@ export const index = async (req: Request, res: Response) => {
     sort[req.query.sortKey.toString()] = req.query.sortValue;
   }
   // End Sort
+
+  // Search
+  let objectSearch = searchHelper(req.query);
+
+  if (req.query.keyword) {
+    find.title = objectSearch.regex;
+  }
+
+  // End Search
 
   const tasks = await Task.find(find)
     .sort(sort)
