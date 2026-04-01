@@ -1,23 +1,22 @@
 import express, { Express, Request, Response } from "express";
 import * as database from "./config/database";
 import dotenv from "dotenv";
-import { Task } from "./api/v1/models/task.model";
 import mainV1Routes from "./api/v1/routes/index.route";
+import bodyParser from "body-parser";
+import { setServers } from "node:dns";
 
 dotenv.config();
+if (process.env.NODE_ENV !== "production") {
+  setServers(["1.1.1.1", "8.8.8.8"]);
+}
 
 const app: Express = express();
 const port: number | string = process.env.port || 3000;
 
 database.connect();
 
-app.get("/tasks", async (req: Request, res: Response) => {
-  const tasks = await Task.find({
-    deleted: false,
-  });
-
-  res.json(tasks);
-});
+// parse application/json
+app.use(bodyParser.json());
 
 mainV1Routes(app);
 
