@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
-    "outDir": "js",
+    "outDir": "dist",
     "target": "es6",
     "module": "commonjs",
     "removeComments": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "typeRoots": ["./node_modules/@types", "./api/v1/types"]
+  },
+  "include": ["api/v1/**/*"]
 }

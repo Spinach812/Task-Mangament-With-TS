@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mainV1Routes from "./api/v1/routes/index.route";
 import bodyParser from "body-parser";
 import { setServers } from "node:dns";
+import cors from "cors";
 
 dotenv.config();
 if (process.env.NODE_ENV !== "production") {
@@ -14,6 +15,8 @@ const app: Express = express();
 const port: number | string = process.env.port || 3000;
 
 database.connect();
+
+app.use(cors());
 
 // parse application/json
 app.use(bodyParser.json());

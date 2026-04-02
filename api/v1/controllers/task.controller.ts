@@ -35,7 +35,6 @@ export const index = async (req: Request, res: Response) => {
   let paginationInit = {
     currentPage: 1,
     limitItems: 2,
-    skip: 0,
   };
   const countTasks = await Task.countDocuments(find);
   const objectPagination = paginationHelper(
@@ -97,18 +96,32 @@ export const changeStatus = async (req: Request, res: Response) => {
 
 // [PATCH] /api/v1/tasks/change-multi
 export const changeMulti = async (req: Request, res: Response) => {
+  enum Key {
+    STATUS = "status",
+    DELETE = "delete",
+  }
+
   const ids: string[] = req.body.ids;
   const key: string = req.body.key;
   const value: string = req.body.value;
 
   switch (key) {
-    case "status":
+    case Key.STATUS:
       await Task.updateMany({ _id: { $in: ids } }, { status: value });
       res.json({
         code: 200,
       });
       break;
-
+    case Key.DELETE:
+      await Task.updateMany(
+        { _id: { $in: ids } },
+        { deleted: true, deletedAt: new Date() },
+      );
+      res.json({
+        code: 200,
+        message: "Update successfully!",
+      });
+      break;
     default:
       res.json({
         code: 400,
@@ -148,6 +161,31 @@ export const edit = async (req: Request, res: Response) => {
   } catch (error) {
     res.json({
       code: 400,
+    });
+  }
+};
+
+// [DELETE] /api/v1/tasks/delete
+export const deleteTask = async (req: Request, res: Response) => {
+  try {
+    const id: string = String(req.params.id);
+
+    await Task.updateOne(
+      { _id: id },
+      {
+        deleted: true,
+        deletedAt: new Date(),
+      },
+    );
+
+    res.json({
+      code: 200,
+      message: "Delete success!",
+    });
+  } catch (error) {
+    res.json({
+      code: 400,
+      message: "Error!",
     });
   }
 };
